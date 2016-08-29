@@ -58,6 +58,18 @@ TMXTiledMap* TMXTiledMap::createWithXML(const std::string& tmxString, const std:
     return nullptr;
 }
 
+TMXTiledMap* TMXTiledMap::createWithMapInfo(TMXMapInfo* mapInfo)
+{
+    TMXTiledMap *ret = new (std::nothrow) TMXTiledMap();
+    if (ret->initWithMapInfo(mapInfo))
+    {
+        ret->autorelease();
+        return ret;
+    }
+    CC_SAFE_DELETE(ret);
+    return nullptr;
+}
+
 bool TMXTiledMap::initWithTMXFile(const std::string& tmxFile)
 {
     CCASSERT(tmxFile.size()>0, "TMXTiledMap: tmx file should not be empty");
@@ -72,6 +84,20 @@ bool TMXTiledMap::initWithTMXFile(const std::string& tmxFile)
     {
         return false;
     }
+    CCASSERT( !mapInfo->getTilesets().empty(), "TMXTiledMap: Map not found. Please check the filename.");
+    buildWithMapInfo(mapInfo);
+
+    return true;
+}
+
+bool TMXTiledMap::initWithMapInfo(TMXMapInfo* mapInfo)
+{
+    CCASSERT(mapInfo, "TMXTiledMap: mapInfo should not be empty");
+
+    _tmxFile = mapInfo->getTMXFileName();
+
+    setContentSize(Size::ZERO);
+
     CCASSERT( !mapInfo->getTilesets().empty(), "TMXTiledMap: Map not found. Please check the filename.");
     buildWithMapInfo(mapInfo);
 
@@ -140,7 +166,7 @@ TMXTilesetInfo * TMXTiledMap::tilesetForLayer(TMXLayerInfo *layerInfo, TMXMapInf
                     for( int x=0; x < size.width; x++ )
                     {
                         int pos = static_cast<int>(x + size.width * y);
-                        int gid = layerInfo->_tiles[ pos ];
+                        int gid = (layerInfo->_tiles.get())[ pos ];
 
                         // gid are stored in little endian.
                         // if host is big endian, then swap

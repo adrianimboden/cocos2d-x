@@ -129,6 +129,8 @@ public:
      */
     static TMXTiledMap* createWithXML(const std::string& tmxString, const std::string& resourcePath);
 
+    static TMXTiledMap* createWithMapInfo(TMXMapInfo* mapInfo);
+
     /** Return the TMXLayer for the specific layer. 
      *
      * @param layerName A specific layer.
@@ -271,6 +273,8 @@ CC_CONSTRUCTOR_ACCESS:
     
     /** initializes a TMX Tiled Map with a TMX formatted XML string and a path to TMX resources */
     bool initWithXML(const std::string& tmxString, const std::string& resourcePath);
+
+    bool initWithMapInfo(TMXMapInfo* mapInfo);
 
 protected:
     TMXLayer * parseLayer(TMXLayerInfo *layerInfo, TMXMapInfo *mapInfo);

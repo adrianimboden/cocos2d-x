@@ -38,6 +38,7 @@ THE SOFTWARE.
 #include "2d/CCTMXObjectGroup.h" // needed for Vector<TMXObjectGroup*> for binding
 
 #include <string>
+#include <memory>
 
 NS_CC_BEGIN
 
@@ -111,7 +112,7 @@ public:
     ValueMap            _properties;
     std::string         _name;
     Size                _layerSize;
-    uint32_t            *_tiles;
+    std::shared_ptr<uint32_t>_tiles;
     bool                _visible;
     unsigned char       _opacity;
     bool                _ownTiles;

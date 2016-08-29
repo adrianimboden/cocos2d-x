@@ -222,13 +222,7 @@ public:
      * @lua NA
      * @return Pointer to the map of tiles.
      */
-    uint32_t* getTiles() const { return _tiles; };
-    
-    /** Set a pointer to the map of tiles.
-     *
-     * @param tiles A pointer to the map of tiles.
-     */
-    void setTiles(uint32_t* tiles) { _tiles = tiles; };
+    uint32_t* getTiles() const { return _tiles.get(); };
     
     /** Tileset information for the layer. 
      *
@@ -337,7 +331,7 @@ protected:
     /** size of the map's tile (could be different from the tile's size) */
     Size _mapTileSize;
     /** pointer to the map of tiles */
-    uint32_t* _tiles;
+    std::shared_ptr<uint32_t> _tiles;
     /** Tileset information for the layer */
     TMXTilesetInfo* _tileSet;
     /** Layer orientation, which is the same as the map orientation */

@@ -50,11 +50,6 @@ TMXLayerInfo::TMXLayerInfo()
 TMXLayerInfo::~TMXLayerInfo()
 {
     CCLOGINFO("deallocing TMXLayerInfo: %p", this);
-    if (_ownTiles && _tiles)
-    {
-        free(_tiles);
-        _tiles = nullptr;
-    }
 }
 
 ValueMap& TMXLayerInfo::getProperties()
@@ -332,7 +327,7 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
             
             if (_xmlTileIndex < tilesAmount)
             {
-                layer->_tiles[_xmlTileIndex++] = gid;
+                (layer->_tiles.get())[_xmlTileIndex++] = gid;
             }
         }
         else
@@ -419,7 +414,9 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
             // set all value to 0
             memset(tiles, 0, tilesAmount*sizeof(int));
 
-            layer->_tiles = tiles;
+            layer->_tiles = std::shared_ptr<uint32_t>(tiles, [](void* p) {
+                free(p);
+            });
         }
         else if (encoding == "base64")
         {
@@ -668,11 +665,15 @@ void TMXMapInfo::endElement(void *ctx, const char *name)
                     return;
                 }
                 
-                layer->_tiles = reinterpret_cast<uint32_t*>(deflated);
+                layer->_tiles = std::shared_ptr<uint32_t>(reinterpret_cast<uint32_t*>(deflated), [](void* p) {
+                    free(p);
+                });
             }
             else
             {
-                layer->_tiles = reinterpret_cast<uint32_t*>(buffer);
+                layer->_tiles = std::shared_ptr<uint32_t>(reinterpret_cast<uint32_t*>(buffer), [](void* p) {
+                    free(p);
+                });
             }
             
             tmxMapInfo->setCurrentString("");
@@ -712,7 +713,9 @@ void TMXMapInfo::endElement(void *ctx, const char *name)
                 bufferPtr++;
             }
 
-            layer->_tiles = reinterpret_cast<uint32_t*>(buffer);
+            layer->_tiles = std::shared_ptr<uint32_t>(reinterpret_cast<uint32_t*>(buffer), [](void* p) {
+                free(p);
+            });
 
             tmxMapInfo->setCurrentString("");
         }

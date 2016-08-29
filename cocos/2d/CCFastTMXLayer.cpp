@@ -130,7 +130,6 @@ TMXLayer::~TMXLayer()
 {
     CC_SAFE_RELEASE(_tileSet);
     CC_SAFE_RELEASE(_texture);
-    CC_SAFE_DELETE_ARRAY(_tiles);
     CC_SAFE_RELEASE(_vData);
     CC_SAFE_RELEASE(_vertexBuffer);
     CC_SAFE_RELEASE(_indexBuffer);
@@ -259,7 +258,7 @@ void TMXLayer::updateTiles(const Rect& culledRect)
         for (int x = xBegin; x < xEnd; ++x)
         {
             int tileIndex = getTileIndexByPos(x, y);
-            if(_tiles[tileIndex] == 0) continue;
+            if((_tiles.get())[tileIndex] == 0) continue;
             
             int vertexZ = getVertexZForPos(Vec2(x,y));
             auto iter = _indicesVertexZNumber.find(vertexZ);
@@ -454,7 +453,7 @@ void TMXLayer::updateTotalQuads()
             for(int x =0; x < _layerSize.width; ++x)
             {
                 int tileIndex = getTileIndexByPos(x, y);
-                int tileGID = _tiles[tileIndex];
+                int tileGID = (_tiles.get())[tileIndex];
                 
                 if(tileGID == 0) continue;
                 
@@ -616,7 +615,7 @@ int TMXLayer::getTileGIDAt(const Vec2& tileCoordinate, TMXTileFlags* flags/* = n
     int idx = static_cast<int>(((int) tileCoordinate.x + (int) tileCoordinate.y * _layerSize.width));
     
     // Bits on the far end of the 32-bit global tile ID are used for tile flags
-    int tile = _tiles[idx];
+    int tile = (_tiles.get())[idx];
     auto it = _spriteContainer.find(idx);
     
     // converted to sprite.
@@ -695,8 +694,8 @@ void TMXLayer::removeTileAt(const Vec2& tileCoordinate)
 
 void TMXLayer::setFlaggedTileGIDByIndex(int index, int gid)
 {
-    if(gid == _tiles[index]) return;
-    _tiles[index] = gid;
+    if(gid == (_tiles.get())[index]) return;
+    (_tiles.get())[index] = gid;
     _quadsDirty = true;
     _dirty = true;
 }
